@@ -1,62 +1,30 @@
 import Stack from "@/components/ui/Stack";
-import * as AC from "@bacons/apple-colors";
 import { Text, View } from "react-native";
 
 import * as Form from "@/components/ui/Form";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { useMemo } from "react";
 
 export const unstable_settings = {
   index: {
-    initialRouteName: "index",
+    initialRouteName: "index test",
   },
   info: {
     initialRouteName: "info",
   },
 };
 
-export default function Layout({ segment }: { segment: string }) {
-  const screenName = segment.match(/\((.*)\)/)?.[1]!;
-
-  const firstScreen = useMemo(() => {
-    if (screenName === "index") {
-      return (
-        <Stack.Screen
-          name="index"
-          options={{
-            headerRight: () => (
-              <Form.Link headerRight href="/account">
-                <Avatar />
-              </Form.Link>
-            ),
-          }}
-        />
-      );
-    } else {
-      return <Stack.Screen name={screenName} />;
-    }
-  }, [screenName]);
-
+export default function Layout() {
   return (
-    <Stack>
-      {firstScreen}
-
+    <Stack
+      screenOptions={{
+        title: "My App",
+      }}
+    >
       <Stack.Screen
-        name="icon"
-        sheet
+        name="index"
         options={{
-          headerLargeTitle: false,
-          // Quarter sheet with no pulling allowed
-          headerTransparent: false,
-          sheetGrabberVisible: false,
-          sheetAllowedDetents: [0.25],
           headerRight: () => (
-            <Form.Link headerRight href="/" dismissTo>
-              <IconSymbol
-                name="xmark.circle.fill"
-                color={AC.systemGray}
-                size={28}
-              />
+            <Form.Link headerRight href="/account">
+              <Avatar />
             </Form.Link>
           ),
         }}
