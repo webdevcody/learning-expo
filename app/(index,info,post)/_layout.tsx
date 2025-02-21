@@ -2,24 +2,31 @@ import Stack from "@/components/ui/Stack";
 import { Text, View } from "react-native";
 
 import * as Form from "@/components/ui/Form";
+import { useMemo } from "react";
 
 export const unstable_settings = {
   index: {
-    initialRouteName: "index test",
+    initialRouteName: "index",
   },
   info: {
     initialRouteName: "info",
   },
+  post: {
+    initialRouteName: "post",
+  },
 };
+export default function Layout({ segment }: { segment: string }) {
+  const screenName = segment.match(/\((.*)\)/)?.[1]!;
 
-export default function Layout() {
   return (
     <Stack
       screenOptions={{
         title: "My App",
       }}
     >
-      <Stack.Screen
+      <Stack.Screen name={screenName} />
+
+      {/* <Stack.Screen
         name="index"
         options={{
           headerRight: () => (
@@ -41,7 +48,7 @@ export default function Layout() {
             </Form.Link>
           ),
         }}
-      />
+      /> */}
     </Stack>
   );
 }
