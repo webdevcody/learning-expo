@@ -1,5 +1,6 @@
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
+import * as Form from "@/components/ui/Form";
 
 import * as AC from "@bacons/apple-colors";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -16,12 +17,12 @@ function Post({ text, imageUrl }: Post) {
       <View style={styles.postHeader}>
         <View style={styles.avatar} />
         <View>
-          <Text style={styles.userName}>User Name</Text>
-          <Text style={styles.handle}>@username</Text>
+          <Form.Text>User Name</Form.Text>
+          <Form.Text>@username</Form.Text>
         </View>
       </View>
 
-      <Text style={styles.postText}>{text}</Text>
+      <Form.Text style={styles.postText}>{text}</Form.Text>
 
       {imageUrl && (
         <View style={styles.imageContainer}>
@@ -29,12 +30,12 @@ function Post({ text, imageUrl }: Post) {
         </View>
       )}
 
-      <View style={styles.postActions}>
+      {/* <View style={styles.postActions}>
         <IconSymbol name="bubble.left" color={AC.secondaryLabel} />
         <IconSymbol name="arrow.rectanglepath" color={AC.secondaryLabel} />
         <IconSymbol name="heart" color={AC.secondaryLabel} />
         <IconSymbol name="square.and.arrow.up" color={AC.secondaryLabel} />
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -56,27 +57,19 @@ export default function Page() {
 
   return (
     <BodyScrollView>
-      <View style={styles.container}>
-        {posts.map((post) => (
-          <Post key={post.id} {...post} />
-        ))}
-      </View>
+      {posts.map((post) => (
+        <Post key={post.id} {...post} />
+      ))}
     </BodyScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 0,
-    backgroundColor: "#000000", // Dark background for better contrast
-  },
   post: {
-    backgroundColor: "#000000",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#333333", // Subtle separator
+    borderBottomColor: "#444",
   },
   postHeader: {
     flexDirection: "row",
@@ -87,8 +80,8 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#444444", // Darker placeholder for avatar
     marginRight: 12,
+    backgroundColor: "gray",
   },
   userName: {
     fontSize: 16,
@@ -102,7 +95,6 @@ const styles = StyleSheet.create({
   },
   postText: {
     fontSize: 17,
-    color: "#FFFFFF", // White text
     marginBottom: 12,
     lineHeight: 22,
   },
