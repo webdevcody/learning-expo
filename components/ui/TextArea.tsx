@@ -7,7 +7,7 @@ export function TextArea({
 }: {
   value: string;
   onChangeText: (text: string) => void;
-  placeholder: string;
+  placeholder?: string;
 }) {
   const theme = useColorScheme();
 
