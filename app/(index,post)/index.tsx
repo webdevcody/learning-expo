@@ -1,9 +1,6 @@
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
-import { StyleSheet, Text, View, Image, ScrollView } from "react-native";
+import { StyleSheet, View, Image } from "react-native";
 import * as Form from "@/components/ui/Form";
-
-import * as AC from "@bacons/apple-colors";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 
 type Post = {
   id: string;

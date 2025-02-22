@@ -1,5 +1,5 @@
 import Stack from "@/components/ui/Stack";
-import { Text, useColorScheme, View } from "react-native";
+import { useColorScheme } from "react-native";
 
 export default function Layout() {
   const theme = useColorScheme();

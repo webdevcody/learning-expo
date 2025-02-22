@@ -1,6 +1,6 @@
-import { Link, Stack, router } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
-import { Button, ScrollView, TextInput, View } from "react-native";
+import { Button, ScrollView, View } from "react-native";
 import * as Form from "@/components/ui/Form";
 import { TextArea } from "@/components/ui/TextArea";
 
