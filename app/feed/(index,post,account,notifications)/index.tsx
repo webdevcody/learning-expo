@@ -1,40 +1,55 @@
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
-import { StyleSheet, View, Image } from "react-native";
-import * as Form from "@/components/ui/Form";
+import { StyleSheet, View, Image, useColorScheme } from "react-native";
 import { getPosts } from "@/api/posts";
 import { useQuery } from "@tanstack/react-query";
+import { ThemedText } from "@/components/ui/ThemedText";
+import { Post } from "@/db/schema";
 
-type Post = {
-  id: string;
-  text: string;
-  imageUrl?: string;
-};
+function PostComponent(post: Post) {
+  const theme = useColorScheme();
+  const defaultProfilePicture = `https://api.dicebear.com/7.x/bottts/png?seed=${post.content}`; // Using text as seed for variety
 
-function Post({ text, imageUrl }: Post) {
   return (
     <View style={styles.post}>
       <View style={styles.postHeader}>
-        <View style={styles.avatar} />
-        <View>
-          <Form.Text>User Name</Form.Text>
-          <Form.Text>@username</Form.Text>
+        <Image source={{ uri: defaultProfilePicture }} style={styles.avatar} />
+        <View
+          style={{
+            flex: 1,
+            gap: 8,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <ThemedText>Random User</ThemedText>
+          <ThemedText
+            style={{
+              color: theme === "dark" ? "#AAA" : "#333",
+            }}
+          >
+            @random_user
+          </ThemedText>
+          <ThemedText
+            style={{
+              fontSize: 14,
+              color: theme === "dark" ? "#EEE" : "#666",
+            }}
+          >
+            - 1h
+          </ThemedText>
         </View>
       </View>
 
-      <Form.Text style={styles.postText}>{text}</Form.Text>
+      <ThemedText style={styles.postText}>{post.content}</ThemedText>
 
-      {imageUrl && (
+      {/* {post.image && (
         <View style={styles.imageContainer}>
-          <Image source={{ uri: imageUrl }} style={styles.postImage} />
+          <Image
+            source={{ uri: post.image }}
+            style={styles.postImage}
+          />
         </View>
-      )}
-
-      {/* <View style={styles.postActions}>
-        <IconSymbol name="bubble.left" color={AC.secondaryLabel} />
-        <IconSymbol name="arrow.rectanglepath" color={AC.secondaryLabel} />
-        <IconSymbol name="heart" color={AC.secondaryLabel} />
-        <IconSymbol name="square.and.arrow.up" color={AC.secondaryLabel} />
-      </View> */}
+      )} */}
     </View>
   );
 }
@@ -48,7 +63,7 @@ export default function Page() {
   return (
     <BodyScrollView>
       {posts?.map((post: Post) => (
-        <Post key={post.id} {...post} />
+        <PostComponent key={post.id} {...post} />
       ))}
     </BodyScrollView>
   );
@@ -57,9 +72,9 @@ export default function Page() {
 const styles = StyleSheet.create({
   post: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 18,
     borderBottomWidth: 0.5,
-    borderBottomColor: "#444",
+    borderBottomColor: "#BBB",
   },
   postHeader: {
     flexDirection: "row",

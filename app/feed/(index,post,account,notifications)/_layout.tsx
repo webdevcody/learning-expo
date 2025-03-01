@@ -14,26 +14,7 @@ export default function Layout({ segment }: { segment: string }) {
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: "Feed",
-          // headerLeft: () => (
-          //   <IconSymbol name="bird.circle.fill" size={24} color="purple" />
-          // ),
-          // headerRight: () => (
-          //   <IconSymbol name="bird.circle.fill" size={24} color="purple" />
-          // ),
-
-          // header: () => (
-          //   <View
-          //     style={{
-          //       justifyContent: "center",
-          //       alignItems: "center",
-          //       paddingVertical: 44,
-          //       backgroundColor: theme === "dark" ? "#333" : "#ddd",
-          //     }}
-          //   >
-          //     <IconSymbol name="bird.circle.fill" size={24} color="purple" />
-          //   </View>
-          // ),
+          headerTitle: "Your Feed",
         }}
         name="index"
       />
@@ -43,8 +24,14 @@ export default function Layout({ segment }: { segment: string }) {
         options={{
           title: "",
           presentation: "modal",
+          headerTitle: "New Post",
+          headerLargeTitle: false,
           headerLeft: () => (
-            <Button title="Cancel" color="#000" onPress={() => router.back()} />
+            <Button
+              title="Cancel"
+              color={theme === "dark" ? "#EEE" : "#111"}
+              onPress={() => router.back()}
+            />
           ),
         }}
       />
@@ -54,6 +41,14 @@ export default function Layout({ segment }: { segment: string }) {
         options={{
           presentation: "modal",
           headerTitle: "Notifications",
+          headerLargeTitle: false,
+          headerLeft: () => (
+            <Button
+              title="Close"
+              color={theme === "dark" ? "#EEE" : "#111"}
+              onPress={() => router.back()}
+            />
+          ),
         }}
       />
 

@@ -12,14 +12,12 @@ export default function NewPostScreen() {
   const createPostMutation = useMutation({
     mutationFn: (data: NewPost) => createPost(data),
     onSuccess: () => {
-      // queryClient.invalidateQueries({ queryKey: ["posts"] });
       router.back();
     },
   });
 
   async function handleSubmit() {
     await createPostMutation.mutate({
-      title: "test",
       content: postContent,
     });
   }

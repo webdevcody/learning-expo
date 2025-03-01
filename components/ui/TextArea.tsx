@@ -1,4 +1,5 @@
-import { TextInput, useColorScheme } from "react-native";
+import { Colors } from "@/constants/Colors";
+import { TextInput, useColorScheme, View } from "react-native";
 
 export function TextArea({
   value,
@@ -19,9 +20,9 @@ export function TextArea({
       placeholder={placeholder}
       autoFocus
       style={{
-        height: 120,
         padding: 10,
         margin: 10,
+        height: 120,
         borderWidth: 1,
         width: "100%",
         backgroundColor: theme === "dark" ? "#111" : "#EEE",
