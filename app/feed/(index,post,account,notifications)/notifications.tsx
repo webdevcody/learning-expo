@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 
-export default function AccountScreen() {
-  return <View style={styles.container}>Test</View>;
+export default function NotificationsScreen() {
+  return <View style={styles.container}></View>;
 }
 
 const styles = StyleSheet.create({
@@ -10,5 +10,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 24,
     paddingTop: 48,
+  },
+  textArea: {
+    width: "100%",
   },
 });

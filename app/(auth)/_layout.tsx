@@ -6,7 +6,7 @@ export default function AuthRoutesLayout() {
 
   if (!isLoaded) return null;
 
-  if (isSignedIn) return <Redirect href="/" />;
+  if (isSignedIn) return <Redirect href="/feed" />;
 
   return (
     <Stack
@@ -20,17 +20,32 @@ export default function AuthRoutesLayout() {
               headerLargeTitleShadowVisible: false,
               headerShadowVisible: true,
               headerLargeStyle: {
-                // NEW: Make the large title transparent to match the background.
                 backgroundColor: "transparent",
               },
             }),
       }}
     >
-      <Stack.Screen name="auth/login" options={{ headerTitle: "Sign in" }} />
-      <Stack.Screen name="auth/sign-up" options={{ headerTitle: "Sign up" }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+
       <Stack.Screen
-        name="auth/reset-password"
-        options={{ headerTitle: "Reset password" }}
+        name="login"
+        options={{
+          presentation: "card",
+          headerTitle: "Login",
+        }}
+      />
+
+      <Stack.Screen
+        name="sign-up"
+        options={{
+          presentation: "card",
+          headerTitle: "Sign up",
+        }}
+      />
+
+      <Stack.Screen
+        name="reset-password"
+        options={{ headerTitle: "Reset password", presentation: "modal" }}
       />
     </Stack>
   );

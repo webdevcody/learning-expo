@@ -89,6 +89,7 @@ export default function ResetPassword() {
       <TextInput
         autoCapitalize="none"
         value={emailAddress}
+        label="Email"
         placeholder="Enter email"
         keyboardType="email-address"
         onChangeText={setEmailAddress}
