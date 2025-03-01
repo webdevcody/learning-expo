@@ -35,12 +35,12 @@ export default function Layout({ segment }: { segment: string }) {
         }}
       />
 
-      {/* <Stack.Screen
+      <Stack.Screen
         name="account"
         options={{
           presentation: "modal",
         }}
-      /> */}
+      />
     </Stack>
   );
 }

@@ -2,16 +2,24 @@ import ThemeProvider from "@/components/ui/ThemeProvider";
 import Tabs from "@/components/ui/Tabs";
 import { useColorScheme } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@/cache";
+
+const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 const queryClient = new QueryClient();
 
 export default function Layout() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AppTabs />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+      <ClerkLoaded>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <AppTabs />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </ClerkLoaded>
+    </ClerkProvider>
   );
 }
 
@@ -34,6 +42,11 @@ function AppTabs() {
         options={{
           href: "/post",
         }}
+      />
+      <Tabs.Screen
+        name="(account)"
+        systemImage="person.circle.fill"
+        title="Account"
       />
     </Tabs>
   );

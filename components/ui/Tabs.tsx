@@ -9,6 +9,7 @@ import React from "react";
 import { PlatformPressable } from "@react-navigation/elements";
 import { Tabs as NativeTabs } from "expo-router";
 import BlurTabBarBackground from "./TabBarBackground";
+import { View } from "react-native-reanimated/lib/typescript/Animated";
 
 // These are the default tab options for iOS, they disable on other platforms.
 const DEFAULT_TABS: BottomTabNavigationOptions =

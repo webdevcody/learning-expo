@@ -14,6 +14,8 @@
   },
   "dependencies": {
     "@bacons/apple-colors": "^0.0.8",
+    "@clerk/clerk-expo": "^2.8.2",
+    "@clerk/types": "^4.47.0",
     "@expo/vector-icons": "^14.0.2",
     "@neondatabase/serverless": "^0.10.4",
     "@react-native-masked-view/masked-view": "0.3.2",
@@ -30,6 +32,7 @@
     "expo-haptics": "~14.0.1",
     "expo-linking": "~7.0.5",
     "expo-router": "~4.0.17",
+    "expo-secure-store": "^14.0.1",
     "expo-splash-screen": "~0.29.21",
     "expo-sqlite": "~15.1.1",
     "expo-status-bar": "~2.0.1",
