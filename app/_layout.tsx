@@ -1,12 +1,17 @@
 import ThemeProvider from "@/components/ui/ThemeProvider";
 import Tabs from "@/components/ui/Tabs";
 import { useColorScheme } from "react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export default function Layout() {
   return (
-    <ThemeProvider>
-      <AppTabs />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AppTabs />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

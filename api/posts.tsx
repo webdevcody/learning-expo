@@ -1,15 +1,15 @@
-export type Post = {
-  id: string;
-  content: string;
-  createdAt: Date;
-};
+import { NewPost } from "@/db/schema";
 
-const posts: Post[] = [];
-
-export const createPost = (post: Post) => {
-  posts.push(post);
+export const createPost = (post: NewPost) => {
+  return fetch("/api/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(post),
+  }).then((res) => res.json());
 };
 
 export const getPosts = () => {
-  return posts;
+  return fetch("/api/posts").then((res) => res.json());
 };

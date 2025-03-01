@@ -1,6 +1,8 @@
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
 import { StyleSheet, View, Image } from "react-native";
 import * as Form from "@/components/ui/Form";
+import { getPosts } from "@/api/posts";
+import { useQuery } from "@tanstack/react-query";
 
 type Post = {
   id: string;
@@ -38,23 +40,14 @@ function Post({ text, imageUrl }: Post) {
 }
 
 export default function Page() {
-  // Example posts - in a real app, this would come from an API or database
-  const posts: Post[] = [
-    { id: "1", text: "Hello World! This is my first post." },
-    {
-      id: "2",
-      text: "Check out this cool image!",
-      imageUrl: "https://picsum.photos/400/300",
-    },
-    { id: "3", text: "Just another post without an image." },
-    { id: "4", text: "Just another post without an image." },
-    { id: "5", text: "Just another post without an image." },
-    { id: "6", text: "Just another post without an image." },
-  ];
+  const { data: posts } = useQuery({
+    queryKey: ["posts"],
+    queryFn: () => getPosts(),
+  });
 
   return (
     <BodyScrollView>
-      {posts.map((post) => (
+      {posts?.map((post: Post) => (
         <Post key={post.id} {...post} />
       ))}
     </BodyScrollView>
