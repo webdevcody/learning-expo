@@ -1,9 +1,11 @@
 import Stack from "@/components/ui/Stack";
-import { useColorScheme } from "react-native";
+import { Button, useColorScheme } from "react-native";
 import * as Form from "@/components/ui/Form";
+import { useRouter } from "expo-router";
 
 export default function Layout({ segment }: { segment: string }) {
   const theme = useColorScheme();
+  const router = useRouter();
 
   return (
     <Stack
@@ -22,15 +24,23 @@ export default function Layout({ segment }: { segment: string }) {
         options={{
           title: "",
           presentation: "modal",
+          headerLeft: () => (
+            <Button
+              title="Cancel"
+              onPress={() => {
+                router.back();
+              }}
+            ></Button>
+          ),
         }}
       />
 
-      <Stack.Screen
+      {/* <Stack.Screen
         name="account"
         options={{
           presentation: "modal",
         }}
-      />
+      /> */}
     </Stack>
   );
 }

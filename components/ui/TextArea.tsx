@@ -23,6 +23,7 @@ export function TextArea({
         padding: 10,
         margin: 10,
         borderWidth: 1,
+        width: "100%",
         backgroundColor: theme === "dark" ? "#111" : "#EEE",
         borderColor: theme === "dark" ? "#444" : "#ccc",
         borderRadius: 5,
