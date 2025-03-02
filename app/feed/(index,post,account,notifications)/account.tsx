@@ -1,20 +1,21 @@
 import { Button, StyleSheet } from "react-native";
 import * as Form from "@/components/ui/Form";
 import { useAuth } from "@clerk/clerk-expo";
+import { useRouter } from "expo-router";
 
 export default function AccountScreen() {
   const { signOut } = useAuth();
+  const router = useRouter();
 
   return (
     <Form.List navigationTitle="Settings">
       <Form.Section title="Security">
         <Button
           title="Sign out"
-          onPress={() =>
-            signOut({
-              redirectUrl: "/",
-            })
-          }
+          onPress={async () => {
+            await signOut();
+            router.push("/");
+          }}
         ></Button>
       </Form.Section>
     </Form.List>
