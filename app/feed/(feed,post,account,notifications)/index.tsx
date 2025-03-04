@@ -4,6 +4,7 @@ import { getPosts } from "@/api/posts";
 import { useQuery } from "@tanstack/react-query";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { Post } from "@/db/schema";
+import Skeleton from "@/components/ui/Skeleton";
 
 function PostComponent(post: Post) {
   const theme = useColorScheme();
@@ -55,10 +56,29 @@ function PostComponent(post: Post) {
 }
 
 export default function Page() {
-  const { data: posts } = useQuery({
+  let { data: posts, isLoading } = useQuery({
     queryKey: ["posts"],
     queryFn: () => getPosts(),
   });
+
+  if (isLoading) {
+    return (
+      <BodyScrollView>
+        {[...Array(5)].map((_, i) => (
+          <View key={i} style={styles.post}>
+            <View style={styles.postHeader}>
+              <Skeleton style={[styles.avatar]} />
+              <View style={{ flex: 1, gap: 8 }}>
+                <Skeleton />
+                <Skeleton />
+              </View>
+            </View>
+            <Skeleton />
+          </View>
+        ))}
+      </BodyScrollView>
+    );
+  }
 
   return (
     <BodyScrollView>

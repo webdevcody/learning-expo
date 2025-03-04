@@ -1,9 +1,6 @@
 import Stack from "@/components/ui/Stack";
-import { Button, Pressable, Text, useColorScheme, View } from "react-native";
-import * as Form from "@/components/ui/Form";
-import { Link, useRouter } from "expo-router";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
+import { Button, useColorScheme } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function Layout({ segment }: { segment: string }) {
   const theme = useColorScheme();
