@@ -4,21 +4,24 @@ import {
   Image,
   useColorScheme,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { useGlobalSearchParams } from "expo-router";
 import { useApi } from "@/hooks/useApi";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetPostsResponse } from "@/app/api/posts+api";
 import { formatDistanceToNow } from "date-fns";
+import { useAuth } from "@clerk/clerk-expo";
 
 export default function ProfileScreen() {
   const glob = useGlobalSearchParams();
-
+  const queryClient = useQueryClient();
   const theme = useColorScheme();
   const api = useApi();
   const userId = glob.userId as string;
   const defaultProfilePicture = `https://api.dicebear.com/7.x/bottts/png?seed=${userId}`;
+  const { userId: currentUserId } = useAuth();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["userProfile", userId],
@@ -30,7 +33,32 @@ export default function ProfileScreen() {
     queryFn: () => api.profiles.getPosts(userId),
   });
 
-  if (isLoadingProfile || isLoadingPosts) {
+  const { data: followStatus, isLoading: isLoadingFollowStatus } = useQuery({
+    queryKey: ["followStatus", userId],
+    queryFn: () => api.profiles.getFollowStatus(userId),
+  });
+
+  const { data: stats, isLoading: isLoadingStats } = useQuery({
+    queryKey: ["userStats", userId],
+    queryFn: () => api.profiles.getStats(userId),
+  });
+
+  const handleFollowToggle = async () => {
+    try {
+      await api.profiles.toggleFollow(userId);
+      queryClient.invalidateQueries({ queryKey: ["followStatus", userId] });
+      queryClient.invalidateQueries({ queryKey: ["userStats", userId] });
+    } catch (error) {
+      console.error("Failed to toggle follow status:", error);
+    }
+  };
+
+  if (
+    isLoadingProfile ||
+    isLoadingPosts ||
+    isLoadingFollowStatus ||
+    isLoadingStats
+  ) {
     return <ThemedText>Loading...</ThemedText>;
   }
 
@@ -63,6 +91,19 @@ export default function ProfileScreen() {
           >
             {profile.handle}
           </ThemedText>
+          {currentUserId !== userId && (
+            <TouchableOpacity
+              style={[
+                styles.followButton,
+                followStatus?.following ? styles.followingButton : null,
+              ]}
+              onPress={handleFollowToggle}
+            >
+              <ThemedText style={styles.followButtonText}>
+                {followStatus?.following ? "Following" : "Follow"}
+              </ThemedText>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
@@ -74,11 +115,15 @@ export default function ProfileScreen() {
           <ThemedText style={styles.statLabel}>Posts</ThemedText>
         </View>
         <View style={styles.statItem}>
-          <ThemedText style={styles.statNumber}>1.4K</ThemedText>
+          <ThemedText style={styles.statNumber}>
+            {stats?.followerCount || 0}
+          </ThemedText>
           <ThemedText style={styles.statLabel}>Followers</ThemedText>
         </View>
         <View style={styles.statItem}>
-          <ThemedText style={styles.statNumber}>892</ThemedText>
+          <ThemedText style={styles.statNumber}>
+            {stats?.followingCount || 0}
+          </ThemedText>
           <ThemedText style={styles.statLabel}>Following</ThemedText>
         </View>
       </View>
@@ -154,5 +199,20 @@ const styles = StyleSheet.create({
   postDate: {
     fontSize: 12,
     opacity: 0.7,
+  },
+  followButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 8,
+  },
+  followingButton: {
+    backgroundColor: "#666",
+  },
+  followButtonText: {
+    color: "#FFF",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

@@ -1,7 +1,6 @@
 import { GetPostsResponse } from "@/app/api/posts+api";
 import { GetProfileResponse } from "@/app/api/profiles/[userId]+api";
-import { GetUserPostsResponse } from "@/app/api/posts/[userId]+api";
-import { NewPost } from "@/db/schema";
+import { GetUserStatsResponse } from "@/app/api/profiles/[userId]/stats+api";
 import { useAuth } from "@clerk/clerk-expo";
 import { GetToken } from "@clerk/types";
 
@@ -51,9 +50,27 @@ export function useApi() {
           `/api/profiles/${userId}`
         ),
       getPosts: (userId: string) =>
-        authenticatedFetch<GetUserPostsResponse>(
+        authenticatedFetch<GetPostsResponse>(
           getToken,
           `/api/profiles/${userId}/posts`
+        ),
+      getFollowStatus: (userId: string) =>
+        authenticatedFetch<{ following: boolean }>(
+          getToken,
+          `/api/profiles/${userId}/follow`
+        ),
+      toggleFollow: (userId: string) =>
+        authenticatedFetch<{ following: boolean }>(
+          getToken,
+          `/api/profiles/${userId}/follow`,
+          {
+            method: "POST",
+          }
+        ),
+      getStats: (userId: string) =>
+        authenticatedFetch<GetUserStatsResponse>(
+          getToken,
+          `/api/profiles/${userId}/stats`
         ),
     },
     userProfile: {
