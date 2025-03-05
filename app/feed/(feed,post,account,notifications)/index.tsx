@@ -1,6 +1,13 @@
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
-import { StyleSheet, View, Image, useColorScheme } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import {
+  StyleSheet,
+  View,
+  Image,
+  useColorScheme,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { Post, posts } from "@/db/schema";
 import Skeleton from "@/components/ui/Skeleton";
@@ -57,8 +64,17 @@ function PostComponent(post: Post) {
 
 export default function Page() {
   const api = useApi();
+  const queryClient = useQueryClient();
 
-  let { data: posts, isLoading } = useQuery({
+  function handleRefresh() {
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
+  }
+
+  let {
+    data: posts,
+    isLoading,
+    isRefetching,
+  } = useQuery({
     queryKey: ["posts"],
     queryFn: () => api.posts.get(),
   });
@@ -83,7 +99,11 @@ export default function Page() {
   }
 
   return (
-    <BodyScrollView>
+    <BodyScrollView
+      refreshControl={
+        <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
+      }
+    >
       {posts?.map((post: Post) => (
         <PostComponent key={post.id} {...post} />
       ))}

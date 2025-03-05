@@ -1,10 +1,15 @@
 import { createAuthenticatedEndpoint } from "@/util/auth";
 import { db } from "../../db";
 import { posts } from "../../db/schema";
+import { desc } from "drizzle-orm";
 
 export const GET = createAuthenticatedEndpoint(
   async (request: Request, userId: string) => {
-    const allPosts = await db.select().from(posts);
+    const allPosts = await db
+      .select()
+      .from(posts)
+      .orderBy(desc(posts.createdAt))
+      .limit(10);
     return Response.json(allPosts);
   }
 );

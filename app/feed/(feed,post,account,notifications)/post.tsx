@@ -6,7 +6,7 @@ import {
   Button,
   ActivityIndicator,
 } from "react-native";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { NewPost } from "@/db/schema";
 import { TextArea } from "@/components/ui/TextArea";
 import { useForm, Controller } from "react-hook-form";
@@ -32,11 +32,13 @@ export default function NewPostScreen() {
     },
   });
 
+  const queryClient = useQueryClient();
   const api = useApi();
 
   const createPostMutation = useMutation({
     mutationFn: (data: NewPost) => api.posts.create(data),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
       router.back();
     },
   });
