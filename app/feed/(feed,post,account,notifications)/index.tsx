@@ -1,10 +1,10 @@
 import { BodyScrollView } from "@/components/ui/BodyScrollView";
 import { StyleSheet, View, Image, useColorScheme } from "react-native";
-import { getPosts } from "@/api/posts";
 import { useQuery } from "@tanstack/react-query";
 import { ThemedText } from "@/components/ui/ThemedText";
-import { Post } from "@/db/schema";
+import { Post, posts } from "@/db/schema";
 import Skeleton from "@/components/ui/Skeleton";
+import { useApi } from "@/hooks/useApi";
 
 function PostComponent(post: Post) {
   const theme = useColorScheme();
@@ -56,9 +56,11 @@ function PostComponent(post: Post) {
 }
 
 export default function Page() {
+  const api = useApi();
+
   let { data: posts, isLoading } = useQuery({
     queryKey: ["posts"],
-    queryFn: () => getPosts(),
+    queryFn: () => api.posts.get(),
   });
 
   if (isLoading) {

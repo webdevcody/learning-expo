@@ -7,12 +7,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useMutation } from "@tanstack/react-query";
-import { createPost } from "@/api/posts";
 import { NewPost } from "@/db/schema";
 import { TextArea } from "@/components/ui/TextArea";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useApi } from "@/hooks/useApi";
 
 const postSchema = z.object({
   content: z.string().min(1, "Post content is required"),
@@ -32,8 +32,10 @@ export default function NewPostScreen() {
     },
   });
 
+  const api = useApi();
+
   const createPostMutation = useMutation({
-    mutationFn: (data: NewPost) => createPost(data),
+    mutationFn: (data: NewPost) => api.posts.create(data),
     onSuccess: () => {
       router.back();
     },

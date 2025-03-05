@@ -18,9 +18,9 @@ function AppTabs() {
       }}
     >
       <Tabs.Screen
-        name="(index)"
+        name="(feed)"
         systemImage="house.fill"
-        title="Home"
+        title="Feed"
         options={{
           href: "/feed",
         }}
