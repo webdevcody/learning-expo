@@ -1,8 +1,16 @@
-import { View, StyleSheet, Image, useColorScheme } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Image,
+  useColorScheme,
+  FlatList,
+} from "react-native";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { useGlobalSearchParams } from "expo-router";
 import { useApi } from "@/hooks/useApi";
 import { useQuery } from "@tanstack/react-query";
+import { GetPostsResponse } from "@/app/api/posts+api";
+import { formatDistanceToNow } from "date-fns";
 
 export default function ProfileScreen() {
   const glob = useGlobalSearchParams();
@@ -12,18 +20,32 @@ export default function ProfileScreen() {
   const userId = glob.userId as string;
   const defaultProfilePicture = `https://api.dicebear.com/7.x/bottts/png?seed=${userId}`;
 
-  const { data: profile, isLoading } = useQuery({
+  const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["userProfile", userId],
     queryFn: () => api.profiles.get(userId),
   });
 
-  if (isLoading) {
+  const { data: userPosts, isLoading: isLoadingPosts } = useQuery({
+    queryKey: ["userPosts", userId],
+    queryFn: () => api.profiles.getPosts(userId),
+  });
+
+  if (isLoadingProfile || isLoadingPosts) {
     return <ThemedText>Loading...</ThemedText>;
   }
 
   if (!profile) {
     return <ThemedText>Profile not found</ThemedText>;
   }
+
+  const renderPost = ({ item }: { item: GetPostsResponse[0] }) => (
+    <View style={styles.postContainer}>
+      <ThemedText style={styles.postContent}>{item.content}</ThemedText>
+      <ThemedText style={styles.postDate}>
+        {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+      </ThemedText>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -46,7 +68,9 @@ export default function ProfileScreen() {
 
       <View style={styles.stats}>
         <View style={styles.statItem}>
-          <ThemedText style={styles.statNumber}>123</ThemedText>
+          <ThemedText style={styles.statNumber}>
+            {userPosts?.length || 0}
+          </ThemedText>
           <ThemedText style={styles.statLabel}>Posts</ThemedText>
         </View>
         <View style={styles.statItem}>
@@ -58,6 +82,13 @@ export default function ProfileScreen() {
           <ThemedText style={styles.statLabel}>Following</ThemedText>
         </View>
       </View>
+
+      <FlatList
+        data={userPosts}
+        renderItem={renderPost}
+        keyExtractor={(item) => item.id.toString()}
+        style={styles.postsList}
+      />
     </View>
   );
 }
@@ -106,6 +137,22 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 14,
+    opacity: 0.7,
+  },
+  postsList: {
+    marginTop: 20,
+  },
+  postContainer: {
+    padding: 16,
+    borderBottomWidth: 0.5,
+    borderBottomColor: "#BBB",
+  },
+  postContent: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  postDate: {
+    fontSize: 12,
     opacity: 0.7,
   },
 });

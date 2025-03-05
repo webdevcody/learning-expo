@@ -18,7 +18,7 @@ import { GetPostsResponse } from "@/app/api/posts+api";
 function PostComponent(post: GetPostsResponse[number]) {
   const theme = useColorScheme();
   const router = useRouter();
-  const defaultProfilePicture = `https://api.dicebear.com/7.x/bottts/png?seed=${post.content}`; // Using text as seed for variety
+  const defaultProfilePicture = `https://api.dicebear.com/7.x/bottts/png?seed=${post.userId}`; // Using text as seed for variety
 
   const timeAgo = formatDistanceToNow(new Date(post.createdAt), {
     addSuffix: true,

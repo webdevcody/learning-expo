@@ -1,5 +1,6 @@
 import { GetPostsResponse } from "@/app/api/posts+api";
 import { GetProfileResponse } from "@/app/api/profiles/[userId]+api";
+import { GetUserPostsResponse } from "@/app/api/posts/[userId]+api";
 import { NewPost } from "@/db/schema";
 import { useAuth } from "@clerk/clerk-expo";
 import { GetToken } from "@clerk/types";
@@ -48,6 +49,11 @@ export function useApi() {
         authenticatedFetch<GetProfileResponse>(
           getToken,
           `/api/profiles/${userId}`
+        ),
+      getPosts: (userId: string) =>
+        authenticatedFetch<GetUserPostsResponse>(
+          getToken,
+          `/api/profiles/${userId}/posts`
         ),
     },
     userProfile: {
