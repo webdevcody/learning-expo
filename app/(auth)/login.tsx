@@ -8,6 +8,7 @@ import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { isClerkAPIResponseError, useSignIn } from "@clerk/clerk-expo";
 import { ClerkAPIError } from "@clerk/types";
+import { useApi } from "@/hooks/useApi";
 
 export default function SignIn() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -17,6 +18,8 @@ export default function SignIn() {
   const [password, setPassword] = React.useState("");
   const [isSigningIn, setIsSigningIn] = React.useState(false);
   const [errors, setErrors] = React.useState<ClerkAPIError[]>([]);
+  const api = useApi();
+
   // Handle the submission of the sign-in form
   const onSignInPress = React.useCallback(async () => {
     if (!isLoaded) return;
@@ -37,6 +40,7 @@ export default function SignIn() {
       // and redirect the user
       if (signInAttempt.status === "complete") {
         await setActive({ session: signInAttempt.createdSessionId });
+        await api.userProfile.get();
         router.replace("/feed");
       } else {
         // If the status isn't complete, check why. User might need to

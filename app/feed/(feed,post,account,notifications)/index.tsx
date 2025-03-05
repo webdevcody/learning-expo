@@ -5,59 +5,74 @@ import {
   Image,
   useColorScheme,
   RefreshControl,
-  ActivityIndicator,
+  Pressable,
 } from "react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ThemedText } from "@/components/ui/ThemedText";
-import { Post, posts } from "@/db/schema";
 import Skeleton from "@/components/ui/Skeleton";
 import { useApi } from "@/hooks/useApi";
+import { formatDistanceToNow } from "date-fns";
+import { useRouter } from "expo-router";
+import { GetPostsResponse } from "@/app/api/posts+api";
 
-function PostComponent(post: Post) {
+function PostComponent(post: GetPostsResponse[number]) {
   const theme = useColorScheme();
+  const router = useRouter();
   const defaultProfilePicture = `https://api.dicebear.com/7.x/bottts/png?seed=${post.content}`; // Using text as seed for variety
+
+  const timeAgo = formatDistanceToNow(new Date(post.createdAt), {
+    addSuffix: true,
+  });
+
+  const handleProfilePress = () => {
+    router.push({
+      pathname: "/feed/profile/[userId]",
+      params: {
+        userId: post.userId,
+      },
+    });
+  };
 
   return (
     <View style={styles.post}>
       <View style={styles.postHeader}>
-        <Image source={{ uri: defaultProfilePicture }} style={styles.avatar} />
-        <View
-          style={{
-            flex: 1,
-            gap: 8,
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <ThemedText>Random User</ThemedText>
-          <ThemedText
+        <Pressable onPress={handleProfilePress}>
+          <Image
+            source={{ uri: defaultProfilePicture }}
+            style={styles.avatar}
+          />
+        </Pressable>
+        <Pressable onPress={handleProfilePress} style={{ flex: 1 }}>
+          <View
             style={{
-              color: theme === "dark" ? "#AAA" : "#333",
+              gap: 4,
             }}
           >
-            @random_user
-          </ThemedText>
-          <ThemedText
-            style={{
-              fontSize: 14,
-              color: theme === "dark" ? "#EEE" : "#666",
-            }}
-          >
-            - 1h
-          </ThemedText>
-        </View>
+            <View
+              style={{ flexDirection: "row", gap: 8, alignItems: "center" }}
+            >
+              <ThemedText>{post.profile.displayName}</ThemedText>
+              <ThemedText
+                style={{
+                  color: theme === "dark" ? "#AAA" : "#333",
+                }}
+              >
+                @{post.profile.handle}
+              </ThemedText>
+            </View>
+            <ThemedText
+              style={{
+                fontSize: 14,
+                color: theme === "dark" ? "#EEE" : "#666",
+              }}
+            >
+              {timeAgo}
+            </ThemedText>
+          </View>
+        </Pressable>
       </View>
 
       <ThemedText style={styles.postText}>{post.content}</ThemedText>
-
-      {/* {post.image && (
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: post.image }}
-            style={styles.postImage}
-          />
-        </View>
-      )} */}
     </View>
   );
 }
@@ -104,7 +119,7 @@ export default function Page() {
         <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
       }
     >
-      {posts?.map((post: Post) => (
+      {posts?.map((post: GetPostsResponse[number]) => (
         <PostComponent key={post.id} {...post} />
       ))}
     </BodyScrollView>

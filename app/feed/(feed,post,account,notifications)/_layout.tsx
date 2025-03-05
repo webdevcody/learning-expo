@@ -49,6 +49,14 @@ export default function Layout({ segment }: { segment: string }) {
         }}
       />
 
+      <Stack.Screen
+        name="profile/[userId]"
+        options={{
+          presentation: "card",
+          headerTitle: "",
+        }}
+      />
+
       <Stack.Screen name="account" />
     </Stack>
   );

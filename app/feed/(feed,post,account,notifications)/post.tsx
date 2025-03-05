@@ -36,7 +36,7 @@ export default function NewPostScreen() {
   const api = useApi();
 
   const createPostMutation = useMutation({
-    mutationFn: (data: NewPost) => api.posts.create(data),
+    mutationFn: api.posts.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       router.back();

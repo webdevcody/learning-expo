@@ -1,6 +1,5 @@
 import Tabs from "@/components/ui/Tabs";
 import { useColorScheme } from "react-native";
-import { useAuth } from "@clerk/clerk-expo";
 
 export default function Layout() {
   return <AppTabs />;

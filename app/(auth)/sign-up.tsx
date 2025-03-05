@@ -7,6 +7,7 @@ import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { isClerkAPIResponseError, useSignUp } from "@clerk/clerk-expo";
 import { ClerkAPIError } from "@clerk/types";
+import { useApi } from "@/hooks/useApi";
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -18,6 +19,7 @@ export default function SignUpScreen() {
   const [code, setCode] = React.useState("");
   const [errors, setErrors] = React.useState<ClerkAPIError[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+  const api = useApi();
 
   const onSignUpPress = async () => {
     if (!isLoaded) return;
@@ -66,6 +68,7 @@ export default function SignUpScreen() {
       // and redirect the user
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
+        await api.userProfile.get();
         router.replace("/feed");
       } else {
         // If the status is not complete, check why. User may need to
