@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { followers } from "@/db/schema";
+import { followers, notifications } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { createAuthenticatedEndpoint } from "@/util/auth";
 
@@ -30,6 +30,14 @@ export const POST = createAuthenticatedEndpoint(
             eq(followers.followingId, targetUserId)
           )
         );
+
+      // Create notification for the target user
+      await db.insert(notifications).values({
+        userId: targetUserId,
+        actorId: currentUserId,
+        type: "unfollow",
+      });
+
       return Response.json({ following: false });
     } else {
       // Follow
@@ -37,6 +45,14 @@ export const POST = createAuthenticatedEndpoint(
         followerId: currentUserId,
         followingId: targetUserId,
       });
+
+      // Create notification for the target user
+      await db.insert(notifications).values({
+        userId: targetUserId,
+        actorId: currentUserId,
+        type: "follow",
+      });
+
       return Response.json({ following: true });
     }
   }

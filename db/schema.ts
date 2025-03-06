@@ -8,6 +8,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+export type NotificationType = "like" | "follow" | "unfollow" | "post";
+
 export const posts = pgTable(
   "posts",
   {
@@ -48,6 +50,21 @@ export const followers = pgTable(
   })
 );
 
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    type: text("type").$type<NotificationType>().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("notifications_user_id_idx").on(table.userId),
+    actorIdIdx: index("notifications_actor_id_idx").on(table.actorId),
+  })
+);
+
 // Add relations configuration
 export const postsRelations = relations(posts, ({ one }) => ({
   profile: one(profiles, {
@@ -64,6 +81,9 @@ export const profilesRelations = relations(profiles, ({ many }) => ({
   following: many(followers, {
     relationName: "following",
   }),
+  notifications: many(notifications, {
+    relationName: "notifications",
+  }),
 }));
 
 export const followersRelations = relations(followers, ({ one }) => ({
@@ -79,6 +99,17 @@ export const followersRelations = relations(followers, ({ one }) => ({
   }),
 }));
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(profiles, {
+    fields: [notifications.userId],
+    references: [profiles.userId],
+  }),
+  actor: one(profiles, {
+    fields: [notifications.actorId],
+    references: [profiles.userId],
+  }),
+}));
+
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
 
@@ -87,3 +118,6 @@ export type NewProfile = typeof profiles.$inferInsert;
 
 export type Follower = typeof followers.$inferSelect;
 export type NewFollower = typeof followers.$inferInsert;
+
+export type Notification = typeof notifications.$inferSelect;
+export type NewNotification = typeof notifications.$inferInsert;

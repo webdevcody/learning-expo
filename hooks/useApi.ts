@@ -3,6 +3,7 @@ import { GetProfileResponse } from "@/app/api/profiles/[userId]+api";
 import { GetUserStatsResponse } from "@/app/api/profiles/[userId]/stats+api";
 import { useAuth } from "@clerk/clerk-expo";
 import { GetToken } from "@clerk/types";
+import { GetNotificationsResponse } from "@/app/api/notifications+api";
 
 async function authenticatedFetch<T>(
   getToken: GetToken,
@@ -71,6 +72,13 @@ export function useApi() {
         authenticatedFetch<GetUserStatsResponse>(
           getToken,
           `/api/profiles/${userId}/stats`
+        ),
+    },
+    notifications: {
+      get: () =>
+        authenticatedFetch<GetNotificationsResponse>(
+          getToken,
+          "/api/notifications"
         ),
     },
     userProfile: {

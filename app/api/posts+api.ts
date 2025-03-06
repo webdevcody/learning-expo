@@ -1,6 +1,6 @@
 import { createAuthenticatedEndpoint } from "@/util/auth";
 import { db } from "../../db";
-import { posts, profiles } from "../../db/schema";
+import { followers, notifications, posts, profiles } from "../../db/schema";
 import { desc, eq } from "drizzle-orm";
 
 export type GetPostsResponse = {
@@ -40,6 +40,23 @@ export const POST = createAuthenticatedEndpoint(
       .insert(posts)
       .values({ userId, content })
       .returning();
+
+    const userFollowers = await db.query.followers.findMany({
+      where: eq(followers.followingId, userId),
+    });
+
+    if (userFollowers.length > 0) {
+      await Promise.all(
+        userFollowers.map((follower) =>
+          db.insert(notifications).values({
+            userId: follower.followerId,
+            actorId: userId,
+            type: "post",
+          })
+        )
+      );
+    }
+
     return Response.json(newPost[0]);
   }
 );

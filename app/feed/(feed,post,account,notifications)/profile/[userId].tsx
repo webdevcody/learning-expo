@@ -13,6 +13,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetPostsResponse } from "@/app/api/posts+api";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@clerk/clerk-expo";
+import Skeleton from "@/components/ui/Skeleton";
 
 export default function ProfileScreen() {
   const glob = useGlobalSearchParams();
@@ -53,19 +54,6 @@ export default function ProfileScreen() {
     }
   };
 
-  if (
-    isLoadingProfile ||
-    isLoadingPosts ||
-    isLoadingFollowStatus ||
-    isLoadingStats
-  ) {
-    return <ThemedText>Loading...</ThemedText>;
-  }
-
-  if (!profile) {
-    return <ThemedText>Profile not found</ThemedText>;
-  }
-
   const renderPost = ({ item }: { item: GetPostsResponse[0] }) => (
     <View style={styles.postContainer}>
       <ThemedText style={styles.postContent}>{item.content}</ThemedText>
@@ -80,17 +68,25 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <Image source={{ uri: defaultProfilePicture }} style={styles.avatar} />
         <View style={styles.userInfo}>
-          <ThemedText style={styles.username}>
-            {profile?.displayName}
-          </ThemedText>
-          <ThemedText
-            style={[
-              styles.handle,
-              { color: theme === "dark" ? "#AAA" : "#333" },
-            ]}
-          >
-            {profile.handle}
-          </ThemedText>
+          {isLoadingProfile ? (
+            <Skeleton style={styles.textLoader} />
+          ) : (
+            <ThemedText style={styles.username}>
+              {profile?.displayName}
+            </ThemedText>
+          )}
+          {isLoadingProfile ? (
+            <Skeleton style={styles.textLoader} />
+          ) : (
+            <ThemedText
+              style={[
+                styles.handle,
+                { color: theme === "dark" ? "#AAA" : "#333" },
+              ]}
+            >
+              {profile?.handle}
+            </ThemedText>
+          )}
           {currentUserId !== userId && (
             <TouchableOpacity
               style={[
@@ -128,12 +124,20 @@ export default function ProfileScreen() {
         </View>
       </View>
 
-      <FlatList
-        data={userPosts}
-        renderItem={renderPost}
-        keyExtractor={(item) => item.id.toString()}
-        style={styles.postsList}
-      />
+      {isLoadingPosts ? (
+        <View style={styles.postLoadingContainer}>
+          {new Array(10).fill(0).map((_, index) => (
+            <Skeleton key={index} style={styles.postLoader} />
+          ))}
+        </View>
+      ) : (
+        <FlatList
+          data={userPosts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.id.toString()}
+          style={styles.postsList}
+        />
+      )}
     </View>
   );
 }
@@ -154,8 +158,12 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     marginRight: 16,
   },
+  textLoader: {
+    height: 24,
+  },
   userInfo: {
     flex: 1,
+    gap: 6,
   },
   username: {
     fontSize: 24,
@@ -164,6 +172,13 @@ const styles = StyleSheet.create({
   },
   handle: {
     fontSize: 16,
+  },
+  postLoadingContainer: {
+    gap: 24,
+    paddingTop: 24,
+  },
+  postLoader: {
+    height: 64,
   },
   stats: {
     flexDirection: "row",
