@@ -1,14 +1,22 @@
 import { createAuthenticatedEndpoint } from "@/util/auth";
 import { db } from "../../db";
-import { followers, notifications, posts, profiles } from "../../db/schema";
-import { desc, eq } from "drizzle-orm";
+import {
+  followers,
+  notifications,
+  posts,
+  profiles,
+  likes,
+} from "../../db/schema";
+import { desc, eq, and, sql } from "drizzle-orm";
 
 export type GetPostsResponse = {
   id: number;
   content: string;
   userId: string;
   createdAt: Date;
-  profile: { displayName: string; handle: string };
+  profile: { displayName: string };
+  isLiked: boolean;
+  likeCount: number;
 }[];
 
 export const GET = createAuthenticatedEndpoint(
@@ -21,13 +29,22 @@ export const GET = createAuthenticatedEndpoint(
         createdAt: posts.createdAt,
         profile: {
           displayName: profiles.displayName,
-          handle: profiles.handle,
         },
+        isLiked: sql<boolean>`EXISTS (
+          SELECT 1 FROM ${likes}
+          WHERE ${likes.postId} = ${posts.id}
+          AND ${likes.userId} = ${userId}
+        )`,
+        likeCount: sql<number>`(
+          SELECT COUNT(*) FROM ${likes}
+          WHERE ${likes.postId} = ${posts.id}
+        )`,
       })
       .from(posts)
       .leftJoin(profiles, eq(posts.userId, profiles.userId))
       .orderBy(desc(posts.createdAt))
       .limit(10);
+
     return Response.json(allPosts);
   }
 );

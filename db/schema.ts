@@ -28,7 +28,6 @@ export const profiles = pgTable(
   {
     userId: text("user_id").primaryKey(),
     displayName: text("display_name").notNull(),
-    handle: text("handle").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
@@ -65,12 +64,27 @@ export const notifications = pgTable(
   })
 );
 
+export const likes = pgTable(
+  "likes",
+  {
+    userId: text("user_id").notNull(),
+    postId: serial("post_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.userId, table.postId] }),
+    userIdIdx: index("likes_user_id_idx").on(table.userId),
+    postIdIdx: index("likes_post_id_idx").on(table.postId),
+  })
+);
+
 // Add relations configuration
-export const postsRelations = relations(posts, ({ one }) => ({
+export const postsRelations = relations(posts, ({ one, many }) => ({
   profile: one(profiles, {
     fields: [posts.userId],
     references: [profiles.userId],
   }),
+  likes: many(likes),
 }));
 
 export const profilesRelations = relations(profiles, ({ many }) => ({
@@ -110,6 +124,17 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
   }),
 }));
 
+export const likesRelations = relations(likes, ({ one }) => ({
+  post: one(posts, {
+    fields: [likes.postId],
+    references: [posts.id],
+  }),
+  user: one(profiles, {
+    fields: [likes.userId],
+    references: [profiles.userId],
+  }),
+}));
+
 export type Post = typeof posts.$inferSelect;
 export type NewPost = typeof posts.$inferInsert;
 
@@ -121,3 +146,6 @@ export type NewFollower = typeof followers.$inferInsert;
 
 export type Notification = typeof notifications.$inferSelect;
 export type NewNotification = typeof notifications.$inferInsert;
+
+export type Like = typeof likes.$inferSelect;
+export type NewLike = typeof likes.$inferInsert;

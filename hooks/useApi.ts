@@ -4,6 +4,7 @@ import { GetUserStatsResponse } from "@/app/api/profiles/[userId]/stats+api";
 import { useAuth } from "@clerk/clerk-expo";
 import { GetToken } from "@clerk/types";
 import { GetNotificationsResponse } from "@/app/api/notifications+api";
+import { Profile } from "@/db/schema";
 
 async function authenticatedFetch<T>(
   getToken: GetToken,
@@ -43,6 +44,14 @@ export function useApi() {
           method: "POST",
           body: JSON.stringify(post),
         }),
+      toggleLike: (postId: number) =>
+        authenticatedFetch<{ liked: boolean }>(
+          getToken,
+          `/api/posts/${postId}/like`,
+          {
+            method: "POST",
+          }
+        ),
     },
     profiles: {
       get: (userId: string) =>
@@ -82,7 +91,12 @@ export function useApi() {
         ),
     },
     userProfile: {
-      get: () => authenticatedFetch(getToken, "/api/userProfile"),
+      get: () => authenticatedFetch<Profile>(getToken, "/api/userProfile"),
+      update: (profile: { displayName: string }) =>
+        authenticatedFetch<Profile>(getToken, "/api/userProfile", {
+          method: "PUT",
+          body: JSON.stringify(profile),
+        }),
     },
   };
 }

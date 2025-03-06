@@ -6,7 +6,6 @@ import { eq } from "drizzle-orm";
 export type GetProfileResponse = {
   id: string;
   displayName: string;
-  handle: string;
 };
 
 export const GET = createAuthenticatedEndpoint(

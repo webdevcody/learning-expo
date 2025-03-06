@@ -11,7 +11,6 @@ export type GetNotificationsResponse = {
   actor: {
     userId: string;
     displayName: string;
-    handle: string;
   };
 }[];
 
@@ -26,7 +25,6 @@ export const GET = createAuthenticatedEndpoint(
         actor: {
           userId: profiles.userId,
           displayName: profiles.displayName,
-          handle: profiles.handle,
         },
       })
       .from(notifications)

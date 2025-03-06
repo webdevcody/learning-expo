@@ -3,6 +3,10 @@ import { createAuthenticatedEndpoint } from "@/util/auth";
 import { profiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+export type UpdateProfileBody = {
+  displayName: string;
+};
+
 export const GET = createAuthenticatedEndpoint(
   async (request: Request, userId: string) => {
     let existingProfile = await db
@@ -15,7 +19,6 @@ export const GET = createAuthenticatedEndpoint(
       const randomSuffix = Math.random().toString(36).substring(2, 8);
       const defaultProfile = {
         userId,
-        handle: `user_${randomSuffix}`,
         displayName: `User ${randomSuffix}`,
       };
 
@@ -28,5 +31,28 @@ export const GET = createAuthenticatedEndpoint(
     } else {
       return Response.json(existingProfile[0]);
     }
+  }
+);
+
+export const PUT = createAuthenticatedEndpoint(
+  async (request: Request, userId: string) => {
+    const body = (await request.json()) as UpdateProfileBody;
+
+    if (!body.displayName || body.displayName.trim().length < 4) {
+      return Response.json(
+        { error: "Display name must be at least 4 characters long" },
+        { status: 400 }
+      );
+    }
+
+    const updatedProfile = await db
+      .update(profiles)
+      .set({
+        displayName: body.displayName.trim(),
+      })
+      .where(eq(profiles.userId, userId))
+      .returning();
+
+    return Response.json(updatedProfile[0]);
   }
 );

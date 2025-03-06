@@ -22,7 +22,6 @@ interface NotificationProps {
   actor: {
     userId: string;
     displayName: string;
-    handle: string;
   };
   timestamp: Date;
   postText?: string;

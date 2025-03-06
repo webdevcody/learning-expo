@@ -14,6 +14,7 @@ import { GetPostsResponse } from "@/app/api/posts+api";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@clerk/clerk-expo";
 import Skeleton from "@/components/ui/Skeleton";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ProfileScreen() {
   const glob = useGlobalSearchParams();
@@ -57,11 +58,38 @@ export default function ProfileScreen() {
   const renderPost = ({ item }: { item: GetPostsResponse[0] }) => (
     <View style={styles.postContainer}>
       <ThemedText style={styles.postContent}>{item.content}</ThemedText>
-      <ThemedText style={styles.postDate}>
-        {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
-      </ThemedText>
+      <View style={styles.postFooter}>
+        <ThemedText style={styles.postDate}>
+          {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+        </ThemedText>
+        <TouchableOpacity
+          onPress={() => handleLikeToggle(item.id)}
+          style={styles.likeButton}
+        >
+          <Ionicons
+            name={item.isLiked ? "heart" : "heart-outline"}
+            size={20}
+            color={
+              item.isLiked ? "#E91E63" : theme === "dark" ? "#FFF" : "#000"
+            }
+          />
+          {item.likeCount > 0 && (
+            <ThemedText style={styles.likeCount}>{item.likeCount}</ThemedText>
+          )}
+        </TouchableOpacity>
+      </View>
     </View>
   );
+
+  const handleLikeToggle = async (postId: number) => {
+    try {
+      await api.posts.toggleLike(postId);
+      queryClient.invalidateQueries({ queryKey: ["userPosts", userId] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -73,18 +101,6 @@ export default function ProfileScreen() {
           ) : (
             <ThemedText style={styles.username}>
               {profile?.displayName}
-            </ThemedText>
-          )}
-          {isLoadingProfile ? (
-            <Skeleton style={styles.textLoader} />
-          ) : (
-            <ThemedText
-              style={[
-                styles.handle,
-                { color: theme === "dark" ? "#AAA" : "#333" },
-              ]}
-            >
-              {profile?.handle}
             </ThemedText>
           )}
           {currentUserId !== userId && (
@@ -229,5 +245,20 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "600",
     textAlign: "center",
+  },
+  postFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  likeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  likeCount: {
+    fontSize: 14,
+    opacity: 0.8,
   },
 });
