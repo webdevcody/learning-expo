@@ -13,6 +13,8 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useApi } from "@/hooks/useApi";
+import { ImageUpload } from "@/components/ui/ImageUpload";
+import { useState } from "react";
 
 const postSchema = z.object({
   content: z.string().min(1, "Post content is required"),
@@ -21,6 +23,7 @@ const postSchema = z.object({
 type PostFormData = z.infer<typeof postSchema>;
 
 export default function NewPostScreen() {
+  const [imageKey, setImageKey] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
@@ -43,11 +46,20 @@ export default function NewPostScreen() {
     },
   });
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit(async (data) => {
     createPostMutation.mutate({
       content: data.content,
+      ...(imageKey && { imageKey }),
     });
   });
+
+  const handleImageUpload = (url: string) => {
+    // Extract the key from the S3 URL
+    const key = url.split("/").pop();
+    if (key) {
+      setImageKey(key);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -68,6 +80,17 @@ export default function NewPostScreen() {
           </View>
         )}
       />
+
+      <View style={styles.imageUploadContainer}>
+        <ImageUpload
+          getPresignedUrl={async () => {
+            const response = await api.files.createPresignedUrl();
+            return response;
+          }}
+          onUploadComplete={handleImageUpload}
+        />
+      </View>
+
       <Button
         onPress={onSubmit}
         title={createPostMutation.isPending ? "Posting..." : "Submit"}
@@ -90,6 +113,11 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: "100%",
     marginBottom: 16,
+  },
+  imageUploadContainer: {
+    width: "100%",
+    marginBottom: 16,
+    alignItems: "center",
   },
   textArea: {
     width: "100%",

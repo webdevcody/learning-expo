@@ -39,3 +39,5 @@ app-example
 
 
 .env
+
+s3/get-social/

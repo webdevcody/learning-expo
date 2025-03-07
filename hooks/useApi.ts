@@ -38,15 +38,17 @@ export function useApi() {
 
   return {
     files: {
-      createPresignedUrl: (file: File) =>
-        authenticatedFetch(getToken, "/api/presigned-url", {
+      createPresignedUrl: () =>
+        authenticatedFetch<{
+          url: string;
+          fields: Record<string, string>;
+        }>(getToken, "/api/presigned-url", {
           method: "POST",
-          body: JSON.stringify({ file }),
         }),
     },
     posts: {
       get: () => authenticatedFetch<GetPostsResponse>(getToken, "/api/posts"),
-      create: (post: { content: string }) =>
+      create: (post: { content: string; imageKey?: string }) =>
         authenticatedFetch(getToken, "/api/posts", {
           method: "POST",
           body: JSON.stringify(post),

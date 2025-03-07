@@ -52,10 +52,10 @@ export const GET = createAuthenticatedEndpoint(
 export const POST = createAuthenticatedEndpoint(
   async (request: Request, userId: string) => {
     const body = await request.json();
-    const { content } = body;
+    const { content, imageKey } = body;
     const newPost = await db
       .insert(posts)
-      .values({ userId, content })
+      .values({ userId, content, imageKey })
       .returning();
 
     const userFollowers = await db.query.followers.findMany({

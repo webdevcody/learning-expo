@@ -16,6 +16,7 @@ export const posts = pgTable(
     id: serial("id").primaryKey(),
     userId: text("user_id").notNull(),
     content: text("content").notNull(),
+    imageKey: text("image_key"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
