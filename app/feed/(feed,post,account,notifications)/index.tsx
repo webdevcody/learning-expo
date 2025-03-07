@@ -87,6 +87,17 @@ function PostComponent(post: GetPostsResponse[number]) {
 
       <ThemedText style={styles.postText}>{post.content}</ThemedText>
 
+      {post.imageKey && (
+        <View style={styles.imageContainer}>
+          <Image
+            source={{
+              uri: `${process.env.EXPO_PUBLIC_FILE_HOST_BASE_URL}/${post.imageKey}`,
+            }}
+            style={styles.postImage}
+          />
+        </View>
+      )}
+
       <View style={styles.postActions}>
         <Pressable
           onPress={handleLikePress}

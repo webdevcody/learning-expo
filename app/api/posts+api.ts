@@ -17,6 +17,7 @@ export type GetPostsResponse = {
   profile: { displayName: string };
   isLiked: boolean;
   likeCount: number;
+  imageKey?: string;
 }[];
 
 export const GET = createAuthenticatedEndpoint(
@@ -27,6 +28,7 @@ export const GET = createAuthenticatedEndpoint(
         content: posts.content,
         userId: posts.userId,
         createdAt: posts.createdAt,
+        imageKey: posts.imageKey,
         profile: {
           displayName: profiles.displayName,
         },

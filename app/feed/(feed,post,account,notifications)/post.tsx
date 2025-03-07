@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { NewPost } from "@/db/schema";
 import { TextArea } from "@/components/ui/TextArea";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +22,8 @@ const postSchema = z.object({
 type PostFormData = z.infer<typeof postSchema>;
 
 export default function NewPostScreen() {
-  const [imageKey, setImageKey] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const {
     control,
     handleSubmit,
@@ -47,19 +47,55 @@ export default function NewPostScreen() {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    createPostMutation.mutate({
-      content: data.content,
-      ...(imageKey && { imageKey }),
-    });
-  });
+    try {
+      if (selectedImage) {
+        setIsUploading(true);
+        // Get the presigned URL and fields
+        const presignedPost = await api.files.createPresignedUrl();
 
-  const handleImageUpload = (url: string) => {
-    // Extract the key from the S3 URL
-    const key = url.split("/").pop();
-    if (key) {
-      setImageKey(key);
+        // Create form data for the upload
+        const formData = new FormData();
+        Object.entries(presignedPost.fields).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+
+        // Add the file with proper metadata
+        formData.append("file", {
+          uri: selectedImage,
+          type: "image/jpeg",
+          name: "upload.jpg",
+        } as any);
+
+        // Upload to S3
+        const uploadResponse = await fetch(presignedPost.url, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Upload failed");
+        }
+
+        // Create post with image
+        createPostMutation.mutate({
+          content: data.content,
+          imageKey: presignedPost.fields.key,
+        });
+      } else {
+        // Create post without image
+        createPostMutation.mutate({
+          content: data.content,
+        });
+      }
+    } catch (error) {
+      console.error("Error during submission:", error);
+    } finally {
+      setIsUploading(false);
     }
-  };
+  });
 
   return (
     <View style={styles.container}>
@@ -72,7 +108,7 @@ export default function NewPostScreen() {
               value={value}
               onChangeText={onChange}
               style={[styles.textArea, errors.content && styles.errorInput]}
-              editable={!createPostMutation.isPending}
+              editable={!createPostMutation.isPending && !isUploading}
             />
             {errors.content && (
               <Text style={styles.errorText}>{errors.content.message}</Text>
@@ -82,21 +118,21 @@ export default function NewPostScreen() {
       />
 
       <View style={styles.imageUploadContainer}>
-        <ImageUpload
-          getPresignedUrl={async () => {
-            const response = await api.files.createPresignedUrl();
-            return response;
-          }}
-          onUploadComplete={handleImageUpload}
-        />
+        <ImageUpload onImageSelect={setSelectedImage} />
       </View>
 
       <Button
         onPress={onSubmit}
-        title={createPostMutation.isPending ? "Posting..." : "Submit"}
-        disabled={createPostMutation.isPending}
+        title={
+          isUploading
+            ? "Uploading..."
+            : createPostMutation.isPending
+            ? "Posting..."
+            : "Submit"
+        }
+        disabled={createPostMutation.isPending || isUploading}
       />
-      {createPostMutation.isPending && (
+      {(createPostMutation.isPending || isUploading) && (
         <ActivityIndicator style={styles.spinner} />
       )}
     </View>
