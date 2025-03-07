@@ -37,6 +37,13 @@ export function useApi() {
   const { getToken } = useAuth();
 
   return {
+    files: {
+      createPresignedUrl: (file: File) =>
+        authenticatedFetch(getToken, "/api/presigned-url", {
+          method: "POST",
+          body: JSON.stringify({ file }),
+        }),
+    },
     posts: {
       get: () => authenticatedFetch<GetPostsResponse>(getToken, "/api/posts"),
       create: (post: { content: string }) =>
@@ -52,6 +59,10 @@ export function useApi() {
             method: "POST",
           }
         ),
+      delete: (postId: number) =>
+        authenticatedFetch(getToken, `/api/posts/${postId}`, {
+          method: "DELETE",
+        }),
     },
     profiles: {
       get: (userId: string) =>

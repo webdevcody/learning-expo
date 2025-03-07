@@ -5,6 +5,7 @@ import {
   useColorScheme,
   FlatList,
   TouchableOpacity,
+  Modal,
 } from "react-native";
 import { ThemedText } from "@/components/ui/ThemedText";
 import { useGlobalSearchParams } from "expo-router";
@@ -15,6 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@clerk/clerk-expo";
 import Skeleton from "@/components/ui/Skeleton";
 import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
 
 export default function ProfileScreen() {
   const glob = useGlobalSearchParams();
@@ -24,6 +26,7 @@ export default function ProfileScreen() {
   const userId = glob.userId as string;
   const defaultProfilePicture = `https://api.dicebear.com/7.x/bottts/png?seed=${userId}`;
   const { userId: currentUserId } = useAuth();
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ["userProfile", userId],
@@ -55,9 +58,47 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleDeletePost = async (postId: number) => {
+    try {
+      await api.posts.delete(postId);
+      queryClient.invalidateQueries({ queryKey: ["userPosts", userId] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      setSelectedPostId(null);
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+    }
+  };
+
   const renderPost = ({ item }: { item: GetPostsResponse[0] }) => (
     <View style={styles.postContainer}>
-      <ThemedText style={styles.postContent}>{item.content}</ThemedText>
+      <View style={styles.postHeader}>
+        <ThemedText style={styles.postContent}>{item.content}</ThemedText>
+        {currentUserId === userId && (
+          <TouchableOpacity
+            onPress={() =>
+              setSelectedPostId(selectedPostId === item.id ? null : item.id)
+            }
+            style={styles.menuButton}
+          >
+            <Ionicons
+              name="ellipsis-vertical"
+              size={20}
+              color={theme === "dark" ? "#FFF" : "#000"}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
+      {selectedPostId === item.id && currentUserId === userId && (
+        <View style={styles.dropdown}>
+          <TouchableOpacity
+            style={styles.dropdownItem}
+            onPress={() => handleDeletePost(item.id)}
+          >
+            <Ionicons name="trash-outline" size={20} color="#E91E63" />
+            <ThemedText style={styles.deleteText}>Delete Post</ThemedText>
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={styles.postFooter}>
         <ThemedText style={styles.postDate}>
           {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
@@ -223,6 +264,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: "#BBB",
   },
+  postHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
   postContent: {
     fontSize: 16,
     marginBottom: 8,
@@ -260,5 +307,34 @@ const styles = StyleSheet.create({
   likeCount: {
     fontSize: 14,
     opacity: 0.8,
+  },
+  menuButton: {
+    padding: 8,
+  },
+  dropdown: {
+    position: "absolute",
+    right: 16,
+    top: 40,
+    backgroundColor: "#FFF",
+    borderRadius: 8,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 1000,
+  },
+  dropdownItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+    gap: 8,
+  },
+  deleteText: {
+    color: "#E91E63",
   },
 });
