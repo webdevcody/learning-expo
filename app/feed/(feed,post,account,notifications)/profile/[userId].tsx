@@ -17,6 +17,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import Skeleton from "@/components/ui/Skeleton";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
+import { getImageUrl } from "@/util/images";
 
 export default function ProfileScreen() {
   const glob = useGlobalSearchParams();
@@ -73,6 +74,7 @@ export default function ProfileScreen() {
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
         <ThemedText style={styles.postContent}>{item.content}</ThemedText>
+
         {currentUserId === userId && (
           <TouchableOpacity
             onPress={() =>
@@ -97,6 +99,14 @@ export default function ProfileScreen() {
             <Ionicons name="trash-outline" size={20} color="#E91E63" />
             <ThemedText style={styles.deleteText}>Delete Post</ThemedText>
           </TouchableOpacity>
+        </View>
+      )}
+      {item.imageKey && (
+        <View>
+          <Image
+            source={{ uri: getImageUrl(item.imageKey) }}
+            style={styles.postImage}
+          />
         </View>
       )}
       <View style={styles.postFooter}>
@@ -203,6 +213,11 @@ const styles = StyleSheet.create({
   container: {
     padding: 24,
     paddingTop: 120,
+  },
+  postImage: {
+    width: 320,
+    height: 200,
+    borderRadius: 8,
   },
   header: {
     flexDirection: "row",

@@ -1,6 +1,6 @@
 import { createAuthenticatedEndpoint } from "@/util/auth";
 import { db } from "@/db";
-import { posts, profiles, likes } from "@/db/schema";
+import { posts, likes } from "@/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
 
 export type GetPostsResponse = {
@@ -19,6 +19,7 @@ export const GET = createAuthenticatedEndpoint(
         id: posts.id,
         content: posts.content,
         userId: posts.userId,
+        imageKey: posts.imageKey,
         createdAt: posts.createdAt,
         isLiked: sql<boolean>`EXISTS (
           SELECT 1 FROM ${likes}

@@ -18,6 +18,7 @@ import { GetPostsResponse } from "@/app/api/posts+api";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@clerk/clerk-expo";
 import { Profile } from "@/db/schema";
+import { getImageUrl } from "@/util/images";
 
 function PostComponent(post: GetPostsResponse[number]) {
   const theme = useColorScheme();
@@ -91,7 +92,7 @@ function PostComponent(post: GetPostsResponse[number]) {
         <View style={styles.imageContainer}>
           <Image
             source={{
-              uri: `${process.env.EXPO_PUBLIC_FILE_HOST_BASE_URL}/${post.imageKey}`,
+              uri: getImageUrl(post.imageKey),
             }}
             style={styles.postImage}
           />
