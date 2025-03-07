@@ -6,40 +6,42 @@ import { GetToken } from "@clerk/types";
 import { GetNotificationsResponse } from "@/app/api/notifications+api";
 import { Profile } from "@/db/schema";
 
-async function authenticatedFetch<T>(
-  getToken: GetToken,
-  url: string,
-  options: RequestInit = {}
-) {
-  const token = await getToken();
+function createAuthenticatedFetch(getToken: GetToken) {
+  return async function authenticatedFetch<T>(
+    url: string,
+    options: RequestInit = {}
+  ) {
+    const token = await getToken();
 
-  if (!token) {
-    throw new Error(
-      "Tried to run an authenticated fetch without token yet being set"
-    );
-  }
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...options.headers,
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to fetch");
-  }
+    if (!token) {
+      throw new Error(
+        "Tried to run an authenticated fetch without token yet being set"
+      );
+    }
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Failed to fetch");
+    }
 
-  if (response.status === 204) {
-    return undefined as T;
-  } else {
-    return response.json() as Promise<T>;
-  }
+    if (response.status === 204) {
+      return undefined as T;
+    } else {
+      return response.json() as Promise<T>;
+    }
+  };
 }
 
 export function useApi() {
   const { getToken } = useAuth();
+  const authenticatedFetch = createAuthenticatedFetch(getToken);
 
   return {
     files: {
@@ -47,49 +49,37 @@ export function useApi() {
         authenticatedFetch<{
           url: string;
           fields: Record<string, string>;
-        }>(getToken, "/api/presigned-url", {
+        }>("/api/presigned-url", {
           method: "POST",
         }),
     },
     posts: {
-      get: () => authenticatedFetch<GetPostsResponse>(getToken, "/api/posts"),
+      get: () => authenticatedFetch<GetPostsResponse>("/api/posts"),
       create: (post: { content: string; imageKey?: string }) =>
-        authenticatedFetch(getToken, "/api/posts", {
+        authenticatedFetch("/api/posts", {
           method: "POST",
           body: JSON.stringify(post),
         }),
       toggleLike: (postId: number) =>
-        authenticatedFetch<{ liked: boolean }>(
-          getToken,
-          `/api/posts/${postId}/like`,
-          {
-            method: "POST",
-          }
-        ),
+        authenticatedFetch<{ liked: boolean }>(`/api/posts/${postId}/like`, {
+          method: "POST",
+        }),
       delete: (postId: number) =>
-        authenticatedFetch(getToken, `/api/posts/${postId}`, {
+        authenticatedFetch(`/api/posts/${postId}`, {
           method: "DELETE",
         }),
     },
     profiles: {
       get: (userId: string) =>
-        authenticatedFetch<GetProfileResponse>(
-          getToken,
-          `/api/profiles/${userId}`
-        ),
+        authenticatedFetch<GetProfileResponse>(`/api/profiles/${userId}`),
       getPosts: (userId: string) =>
-        authenticatedFetch<GetPostsResponse>(
-          getToken,
-          `/api/profiles/${userId}/posts`
-        ),
+        authenticatedFetch<GetPostsResponse>(`/api/profiles/${userId}/posts`),
       getFollowStatus: (userId: string) =>
         authenticatedFetch<{ following: boolean }>(
-          getToken,
           `/api/profiles/${userId}/follow`
         ),
       toggleFollow: (userId: string) =>
         authenticatedFetch<{ following: boolean }>(
-          getToken,
           `/api/profiles/${userId}/follow`,
           {
             method: "POST",
@@ -97,21 +87,17 @@ export function useApi() {
         ),
       getStats: (userId: string) =>
         authenticatedFetch<GetUserStatsResponse>(
-          getToken,
           `/api/profiles/${userId}/stats`
         ),
     },
     notifications: {
       get: () =>
-        authenticatedFetch<GetNotificationsResponse>(
-          getToken,
-          "/api/notifications"
-        ),
+        authenticatedFetch<GetNotificationsResponse>("/api/notifications"),
     },
     userProfile: {
-      get: () => authenticatedFetch<Profile>(getToken, "/api/userProfile"),
+      get: () => authenticatedFetch<Profile>(`/api/userProfile`),
       update: (profile: { displayName: string }) =>
-        authenticatedFetch<Profile>(getToken, "/api/userProfile", {
+        authenticatedFetch<Profile>(`/api/userProfile`, {
           method: "PUT",
           body: JSON.stringify(profile),
         }),

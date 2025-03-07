@@ -28,16 +28,18 @@ export function ImageUpload({ onImageSelect }: ImageUploadProps) {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={pickImage} style={styles.pickButton}>
-        {image ? (
+      {image ? (
+        <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
           <Image source={{ uri: image }} style={styles.preview} />
-        ) : (
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity onPress={pickImage} style={styles.pickButton}>
           <View style={styles.placeholder}>
-            <MaterialIcons name="add-photo-alternate" size={40} color="#666" />
-            <ThemedText style={styles.placeholderText}>Select Image</ThemedText>
+            <ThemedText style={styles.placeholderText}>Add an image</ThemedText>
+            <MaterialIcons name="add-photo-alternate" size={24} color="#666" />
           </View>
-        )}
-      </TouchableOpacity>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -45,12 +47,17 @@ export function ImageUpload({ onImageSelect }: ImageUploadProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    gap: 16,
+    gap: 8,
+  },
+  imageContainer: {
+    width: 320,
+    height: 200,
+    borderRadius: 8,
   },
   pickButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 12,
+    height: 40,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     overflow: "hidden",
     backgroundColor: "#f0f0f0",
   },
@@ -60,11 +67,12 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     flex: 1,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 8,
   },
   placeholderText: {
-    marginTop: 8,
     color: "#666",
   },
 });
